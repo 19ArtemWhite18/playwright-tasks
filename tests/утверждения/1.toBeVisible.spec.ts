@@ -8,8 +8,11 @@ test.describe('Тестирование видимости элементов с
   test('Базовый тест видимости элемента', async ({ page }) => {
     // Задание 1: Проверка видимости элемента
     // 1. Найти элемент с id "always-visible"
+    const alwaysVisibleElement = page.locator('#always-visible');
     // 2. Проверить что элемент видим с помощью toBeVisible()
+    await expect(alwaysVisibleElement).toBeVisible();
     // 3. Проверить что элемент содержит текст "Всегда видимый элемент"
+    await expect(alwaysVisibleElement).toHaveText('Всегда видимый элемент');
   });
 
   test('Тест элементов с разными типами скрытия', async ({ page }) => {
@@ -19,7 +22,12 @@ test.describe('Тестирование видимости элементов с
     //    - #toggle-visibility (visibility: hidden)
     //    - #toggle-opacity (opacity: 0)
     // 2. Проверить что #toggle-display и #toggle-visibility не видны с помощью not.toBeVisible()
+    await expect(async () => {
+      await expect(page.locator('#toggle-display')).not.toBeVisible();
+      await expect(page.locator('#toggle-visibility')).not.toBeVisible();
+    }).toPass();
     // 3. Проверить что #toggle-opacity виден с помощью toBeVisible()
+    await expect(page.locator('#toggle-opacity')).toBeVisible();
   });
 
   test('Тест изменения видимости элементов', async ({ page }) => {
@@ -35,14 +43,31 @@ test.describe('Тестирование видимости элементов с
     //      - display: block
     //      - visibility: visible
     //      - opacity: 1
+    const showDisplay = page.locator('#show-display');
+    const showVisibility = page.locator('#show-visibility');
+    const showOpacity = page.locator('#show-opacity');
+
+    showDisplay.click();
+    await expect(showDisplay).toBeVisible();
+    await expect(page.locator('#toggle-display')).toHaveCSS('display', 'block');
+
+    showVisibility.click();
+    await expect(showVisibility).toBeVisible();
+    await expect(page.locator('#toggle-visibility')).toHaveCSS('visibility', 'visible');
+
+    showOpacity.click();
+    await expect(page.locator('#toggle-opacity')).toHaveCSS('opacity', '1');
   });
 
   test('Тест элемента с задержкой появления', async ({ page }) => {
     // Задание 4: Проверка элемента с задержкой
     // 1. Найти элемент #delayed-element
     // 2. Проверить что он не видим
+    await expect(page.locator('#delayed-element')).not.toBeVisible();
     // 3. Найти кнопку #show-delayed и кликнуть по ней
+    await page.locator('#show-delayed').click();
     // 4. С таймаутом 3 секунды дождаться появления элемента
     // 5. Проверить что элемент содержит текст "Элемент с задержкой появления"
+    await expect(page.locator('#delayed-element')).toHaveText('Элемент с задержкой появления');
   });
 });
